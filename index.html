@@ -1521,75 +1521,163 @@ function renderPipelineSystemsStrip(D){
 
 function buildSimulationScript(flow, D, lang){
   var sysName = getSystemNameForFlow(flow, D);
-  var fid = flow.id || "resched";
-  var hName = "Sales Rep (Tariq — Ext. 101)";
+  var code = ((flow && flow.code) || "").toUpperCase();
+  var fid = ((flow && flow.id) || "").toLowerCase();
+  var hNameEn = "Sales Rep (Tariq — Ext. 101)";
+  var hNameAr = "مسؤول المبيعات (طارق — تحويلة 101)";
 
   if(lang === "ar"){
-    if(fid==="resched" || fid==="complaint" || fid==="urgent"){
-      return [
-        { speaker:"ai", text:"أهلاً بك في لايف تايم فتنس لحلول وتجهيزات الأندية الرياضية، معك وكيل الصوت الذكي. كيف أقدر أساعدك؟", stage:1 },
-        { speaker:"caller", text:"هلا يا غالي، اتفقت معكم على زيارة المعرض وجدولة استشارة هندسية لتجهيز النادي، وحاب أأجل الموعد 3 أيام بسبب ظرف طارئ." },
-        { type:"action", cat:"api", icon:"layers", text:"استعلام الحجز: سحب سجل الموعد من "+sysName+"...", stage:2, chk:"chk_queried" },
-        { speaker:"ai", text:"أهلاً بك يا أستاذ فيصل. استرجعت ملف استشارتكم الهندسية لتجهيز الصالة الرياضية، وبما إن تعديل المواعيد يحتاج تنسيق مع مسؤول المبيعات، راح أحولك مباشرة لمسؤول المبيعات المختص.", stage:3 },
-        { type:"action", cat:"escalate", icon:"users", text:"نقل سياقي: تجهيز تفاصيل الحجز ونقل المكالمة إلى "+hName, stage:4, chk:"chk_verified" },
-        { type:"handover", title:"📞 تحويل دافئ ومباشر إلى مسؤول المبيعات", desc:"جاري النقل إلى تحويلة 101 (طارق — مسؤول المبيعات، منصة 700Apps)" },
-        { speaker:"human-agent", speakerName:"مسؤول المبيعات (طارق — تحويلة 101)", text:"أهلاً أستاذ فيصل، معك طارق مسؤل المبيعات بلايف تايم فتنس. تفاصيل موعد الاستشارة الهندسية ظاهرة أمامي في النظام. حاب نعدل موعد الزيارة لأي يوم تبغاه؟", isEscalate:true },
-        { speaker:"caller", text:"الله يسلمك يا طارق، بالضبط، ونبغى نأكد توفر الأجهزة التجارية في المعرض." },
-        { type:"action", cat:"crm", icon:"checkc", text:"تحديث الموعد: طارق يعتمد جدولة الزيارة الجديدة وتحديث حالة العميل في "+sysName, stage:4, chk:"chk_logged" },
-        { speaker:"human-agent", speakerName:"مسؤول المبيعات (طارق — تحويلة 101)", text:"تم تعديل موعد زيارتك واستشارتك الهندسية إلى يوم الخميس القادم الساعة 4:00 عصراً، وتأكيد توفر كافة الأجهزة بالمعرض.", isEscalate:true },
-        { type:"action", cat:"wa", icon:"chat", text:"إشعار واتساب: تم إرسال تأكيد الموعد المعدل وموقع المعرض", stage:4, chk:"chk_followup" },
-        { speaker:"caller", text:"ما قصرت يا طارق، خدمة احترافية وسريعة جداً!" },
-        { speaker:"human-agent", speakerName:"مسؤول المبيعات (طارق — تحويلة 101)", text:"العفو يا غالي، وننتظر زيارتك لمعرضنا يوم الخميس ونحن دائماً في خدمتكم!" }
-      ];
-    } else if(fid==="book" || fid==="apptstat" || fid==="remind"){
+    // ==========================================
+    // INBOUND FLOWS (العربية)
+    // ==========================================
+    if(code === "IN-1" || fid === "book"){
       return [
         { speaker:"ai", text:"أهلاً بك في لايف تايم فتنس لحلول وتجهيزات الأندية الرياضية! معك وكيل الصوت الذكي، كيف أقدر أساعدك اليوم؟", stage:1 },
         { speaker:"caller", text:"هلا، حاب أحجز موعد استشارة وتصميم صالة رياضية في المعرض الرئيسي بالرياض لمجمع سكني جديد." },
-        { type:"action", cat:"api", icon:"calendar", text:"استعلام المواعيد: التحقق من المواعيد المتاحة في "+sysName+"...", stage:2, chk:"chk_queried" },
-        { speaker:"ai", text:"أبشر يا أستاذ فيصل. شيكت بجدول استشارات المعرض ومتوفر موعد اليوم الساعة 5:00 عصراً مع مستشار المبيعات. أحجز لك الموعد؟", stage:3 },
+        { type:"action", cat:"api", icon:"calendar", text:"استعلام المواعيد: التحقق من المواعيد المتاحة بجدول استشارات المعرض في "+sysName+"...", stage:2, chk:"chk_queried" },
+        { speaker:"ai", text:"أبشر يا أستاذ فيصل. شيكت بجدول استشارات المعرض ومتوفر موعد اليوم الساعة 5:00 عصراً مع مستشار المبيعات والتصميم. أحجز لك الموعد؟", stage:3 },
         { speaker:"caller", text:"أي نعم، احجز لي الله يخليك." },
-        { type:"action", cat:"crm", icon:"checkc", text:"تحديث النظام: تم تسجيل موعد استشارة تجهيز الجيم في "+sysName, stage:4, chk:"chk_logged" },
+        { type:"action", cat:"crm", icon:"checkc", text:"تحديث النظام: تم تسجيل موعد استشارة تجهيز الصالة الرياضية في "+sysName, stage:4, chk:"chk_logged" },
         { speaker:"ai", text:"تم تأكيد موعد استشارتك لتجهيز الصالة الرياضية اليوم الساعة 5:00 عصراً بالمعرض الرئيسي بنجاح.", stage:4 },
         { type:"action", cat:"wa", icon:"chat", text:"إرسال واتساب: تم إرسال بطاقة الموعد وموقع المعرض وكتالوج المعدات التجاري على الواتساب", stage:4, chk:"chk_followup" },
         { speaker:"ai", text:"وأرسلت لك موقع المعرض وكتالوج المعدات التجارية الحديثة على الواتساب.", stage:4 },
         { speaker:"caller", text:"يعطيك ألف عافية، شكراً لك." },
         { speaker:"ai", text:"الله يعافيك، نتشرف بزيارتك ونتمنى لك يوماً سعيداً!" }
       ];
-    } else {
+    } else if(code === "IN-2" || fid === "faq"){
       return [
-        { speaker:"ai", text:"مرحباً بك في لايف تايم فتنس لمعدات وحلول الأندية الرياضية! مهتم بتجهيز صالة رياضية تجارية أو أجهزة منزلية؟", stage:1 },
-        { speaker:"caller", text:"أهلاً، حاب أستفسر عن أسعار ومواصفات أجهزة السير التجارية (Commercial Treadmills) وأجهزة القوة متعددة المحطات." },
-        { type:"action", cat:"api", icon:"layers", text:"استرجاع المواصفات: سحب كتالوجات الأجهزة التجارية المعتمدة وفترات الضمان من "+sysName+"...", stage:2, chk:"chk_queried" },
-        { speaker:"ai", text:"نوفر أجهزة السير التجارية ومحطات القوة المعتمدة من كبرى العلامات العالمية، مع ضمان شامل لمدة 5 سنوات، وخدمة صيانة دورية.", stage:3 },
-        { speaker:"caller", text:"ممتاز جداً! تقدر ترسل لي الكتالوج والمواصفات الفنية المعتمدة على الواتساب؟" },
-        { type:"action", cat:"crm", icon:"users", text:"تسجيل فرصة تجارية: إنشاء ملف عميل محتمل في "+sysName+" وتصنيفه كطلب تجهيز أجهزة تجارية", stage:4, chk:"chk_logged" },
-        { type:"action", cat:"wa", icon:"chat", text:"إرسال واتساب: تم إرسال الكتالوج الفني ومواصفات الأجهزة التجارية وضمان الوكالة", stage:4, chk:"chk_followup" },
-        { speaker:"ai", text:"أرسلت لك الكتالوج الفني الكامل للأجهزة التجارية وشهادات الضمان المعتمدة على الواتساب الحين.", stage:4 },
-        { speaker:"caller", text:"ممتاز، بتطلع عليه الحين، شكراً جزيلاً." },
-        { speaker:"ai", text:"العفو وفي خدمتك دائماً، وجاهزون لمعاينة موقعكم وتوفير أفضل حلول الأجهزة!" }
+        { speaker:"ai", text:"مرحباً بك في لايف تايم فتنس. معك وكيل الدعم والمواصفات الفنية، بأي فئة من المعدات أقدر أساعدك؟", stage:1 },
+        { speaker:"caller", text:"أهلاً، حاب أسأل عن مواصفات مواتير أجهزة السير التجارية (AC Motors) وفترة الضمان، وهل تتوفر عندكم سخانات الساونا الفنلندية؟" },
+        { type:"action", cat:"api", icon:"book", text:"استعلام قاعدة المعرفة: مطابقة مواصفات مواتير أجهزة السير التجارية وغرف الساونا والجاكوزي...", stage:2, chk:"chk_queried" },
+        { speaker:"ai", text:"أجهزة السير التجارية لدينا مزودة بمواتير AC بقوة 5 حصان للاستخدام الشاق، مع ضمان 5 سنوات على الهيكل والموتور وسنتين على اللوحات الإلكترونية، كما نوفر سخانات ومعدات الساونا الفنلندية المعتمدة.", stage:3 },
+        { speaker:"caller", text:"ممتاز جداً! تقدر ترسل لي شهادة الضمان والمواصفات الفنية بالتفصيل على الواتساب؟" },
+        { type:"action", cat:"crm", icon:"users", text:"تسجيل استفسار فني: توثيق اهتمام العميل بالمواصفات والضمان في "+sysName, stage:4, chk:"chk_logged" },
+        { type:"action", cat:"wa", icon:"chat", text:"إرسال واتساب: تم إرسال ملف المواصفات الفنية وشروط الضمان وكتالوج الساونا", stage:4, chk:"chk_followup" },
+        { speaker:"ai", text:"تم إرسال بطاقة المواصفات الفنية الكاملة للأجهزة وسخانات الساونا مع شهادة الضمان المعتمدة إلى رقمك على الواتساب.", stage:4 },
+        { speaker:"caller", text:"تسلم، براجع الملف الحين، شكراً جزيلاً." },
+        { speaker:"ai", text:"العفو وفي خدمتك دائماً في لايف تايم فتنس!" }
+      ];
+    } else if(code === "IN-3" || fid === "resched"){
+      return [
+        { speaker:"ai", text:"أهلاً بك في لايف تايم فتنس لحلول وتجهيزات الأندية الرياضية، معك وكيل الصوت الذكي. كيف أقدر أساعدك؟", stage:1 },
+        { speaker:"caller", text:"هلا يا غالي، اتفقت معكم على زيارة المعرض وجدولة استشارة هندسية لتجهيز النادي، وحاب أأجل الموعد 3 أيام بسبب أعمال تمديدات بالموقع." },
+        { type:"action", cat:"api", icon:"layers", text:"استعلام الحجز: استرجاع ملف الاستشارة وجدول المهندسين من "+sysName+"...", stage:2, chk:"chk_queried" },
+        { speaker:"ai", text:"أهلاً بك يا أستاذ فيصل. استرجعت ملف استشارتكم الهندسية لتجهيز الصالة الرياضية، وبما إن تعديل المواعيد يحتاج تنسيق مع مسؤول المبيعات، راح أحولك مباشرة لمسؤول المبيعات المختص.", stage:3 },
+        { type:"action", cat:"escalate", icon:"users", text:"نقل سياقي: تجهيز تفاصيل الحجز ونقل المكالمة إلى "+hNameAr, stage:4, chk:"chk_verified" },
+        { type:"handover", title:"📞 تحويل دافئ ومباشر إلى مسؤول المبيعات", desc:"جاري النقل إلى تحويلة 101 (طارق — مسؤول المبيعات، منصة 700Apps)" },
+        { speaker:"human-agent", speakerName:hNameAr, text:"أهلاً أستاذ فيصل، معك طارق مسؤول المبيعات بلايف تايم فتنس. ملف استشارة تجهيز الصالة ظاهر أمامي مع طلب التأجيل 3 أيام. حاب نثبت موعد الزيارة يوم الخميس الساعة 4 عصراً؟", isEscalate:true },
+        { speaker:"caller", text:"الله يسلمك يا طارق، ممتاز جداً، الخميس الساعة 4 يناسبنا تماماً." },
+        { type:"action", cat:"crm", icon:"checkc", text:"تحديث الموعد: طارق يعتمد جدولة الزيارة الجديدة وتحديث حالة العميل في "+sysName, stage:4, chk:"chk_logged" },
+        { speaker:"human-agent", speakerName:hNameAr, text:"تم تثبيت موعدك الجديد بالمعرض يوم الخميس الساعة 4:00 عصراً وتجهيز عينات الأجهزة والمخطط المقترح.", isEscalate:true },
+        { type:"action", cat:"wa", icon:"chat", text:"إشعار واتساب: تم إرسال تأكيد الموعد المعدل وموقع المعرض", stage:4, chk:"chk_followup" },
+        { speaker:"caller", text:"ما قصرت يا طارق، خدمة احترافية وسريعة جداً!" },
+        { speaker:"human-agent", speakerName:hNameAr, text:"العفو يا غالي، وننتظر زيارتك لمعرضنا يوم الخميس ونحن دائماً في خدمتكم!" }
+      ];
+    } else if(code === "IN-4" || fid === "lead"){
+      return [
+        { speaker:"ai", text:"مرحباً بك في لايف تايم فتنس لتجهيز الأندية والمنشآت الرياضية. هل استفسارك يخص تجهيز نادي تجاري، مجمع سكني، أو فندق؟", stage:1 },
+        { speaker:"caller", text:"أهلاً، نجهز نادي متكامل لمجمع سكني بمساحة 450 متر مربع، ونحتاج أجهزة كارديو، حديد وأجهزة قوة، بالإضافة لغرفة ساونا وجاكوزي ومنطقة ألعاب أطفال." },
+        { type:"action", cat:"api", icon:"users", text:"تأهيل الفرصة: تسجيل المساحة (450 م²) والفئات المطلوبة (كارديو، قوة، ساونا، مسبح، ألعاب)...", stage:2, chk:"chk_queried" },
+        { speaker:"ai", text:"ما شاء الله، مشروع مميز جداً. لايف تايم فتنس متخصصة في التجهيز المتكامل من دراسة المخطط وتوزيع الأجهزة وحتى توريد الساونا ومعدات المسابح وألعاب الأطفال المعتمدة.", stage:3 },
+        { speaker:"caller", text:"ممتاز، ودنا يزورنا مهندس مبيعات في الموقع لمعاينة المساحة وتقديم عرض سعر متكامل." },
+        { type:"action", cat:"crm", icon:"checkc", text:"إنشاء فرصة بيعية B2B: تسجيل بيانات المشروع والعميل في خط أنابيب "+sysName+" وتوجيهه للمبيعات", stage:4, chk:"chk_logged" },
+        { speaker:"ai", text:"تم تسجيل بيانات المشروع وحجز طلب زيارة معاينة موقعية، وسيقوم مسؤول المبيعات طارق بالتواصل معك اليوم للتنسيق الميداني.", stage:4 },
+        { type:"action", cat:"wa", icon:"chat", text:"إرسال واتساب: تم إرسال الملف التعريفي بمشاريع الأندية المنجزة ونماذج تصاميم الألعاب والساونا", stage:4, chk:"chk_followup" },
+        { speaker:"ai", text:"وأرسلت لك ملف سابقة أعمالنا في المجمعات السكنية ومواصفات الساونا والمسابح على الواتساب.", stage:4 },
+        { speaker:"caller", text:"ممتاز، بانتظار اتصال المهندس، شكراً لك." },
+        { speaker:"ai", text:"في أمان الله، ونتطلع لشراكة ناجحة في تجهيز منشأتكم!" }
+      ];
+    } else if(code === "IN-5" || fid === "quote"){
+      return [
+        { speaker:"ai", text:"أهلاً بك في لايف تايم فتنس! معك المساعد الذكي لقوائم الأسعار والكتالوجات، كيف أقدر أخدمك؟", stage:1 },
+        { speaker:"caller", text:"سلام عليكم، حاب استلم كتالوج 2026 الكامل للأجهزة مع الأسعار وقائمة معدات المسابح والساونا مباشرة على الواتساب." },
+        { type:"action", cat:"api", icon:"book", text:"مطابقة الكتالوجات: تجهيز ملفات PDF للأجهزة التجارية ومعدات المسابح والساونا...", stage:2, chk:"chk_queried" },
+        { speaker:"ai", text:"وعليكم السلام ورحمة الله. أبشر فوراً، هل ترغب بكتالوج الأجهزة التجارية فقط، أم يشمل معدات المسابح والساونا وألعاب الأطفال؟", stage:3 },
+        { speaker:"caller", text:"أرسل لي الكتالوج الشامل لجميع الأقسام لو تكرمت." },
+        { type:"action", cat:"crm", icon:"users", text:"إنشاء سجل جهة اتصال: تسجيل الرقم والاسم في "+sysName+" بدون إدخال يدوي في إكسل", stage:4, chk:"chk_logged" },
+        { type:"action", cat:"wa", icon:"chat", text:"إرسال فوري عبر واتساب: تم إرسال الكتالوج الشامل 2026 وقائمة الأسعار المعتمدة", stage:4, chk:"chk_followup" },
+        { speaker:"ai", text:"تم إرسال الكتالوج الشامل لعام 2026 وقوائم المواصفات لجميع الأقسام إلى رقمك على الواتساب الآن.", stage:4 },
+        { speaker:"caller", text:"وصلني الحين، يعطيكم العافية على السرعة!" },
+        { speaker:"ai", text:"الله يعافيك، وفي حال رغبت بتنسيق موعد لتجربة الأجهزة بالمعرض نحن دائماً في الخدمة." }
+      ];
+    }
+    // ==========================================
+    // OUTBOUND FLOWS (العربية - المكالمات الصادرة الذاتية)
+    // ==========================================
+    else if(code === "OUT-1" || fid === "remind"){
+      return [
+        { speaker:"ai", text:"مرحباً أستاذ فيصل، معك لايف تايم فتنس لتجهيزات الأندية الرياضية. نتصل للتأكيد على موعد استشارتك غداً في المعرض الساعة 5:00 عصراً.", stage:1 },
+        { speaker:"caller", text:"أهلاً بك، أي نعم بإذن الله حاضرين في الموعد." },
+        { type:"action", cat:"api", icon:"calendar", text:"تحديث حالة الحضور: قيد التأكيد المؤكد في "+sysName+"...", stage:2, chk:"chk_queried" },
+        { speaker:"ai", text:"ممتاز جداً! جهزنا لك نماذج الأجهزة ومخططات التصاميم، ومسؤول المبيعات طارق سيكون باستقبالك بالمعرض الرئيسي.", stage:3 },
+        { type:"action", cat:"crm", icon:"checkc", text:"تأكيد الموعد: تحديث بطاقة العميل في "+sysName+" إلى (حضور مؤكد)", stage:4, chk:"chk_logged" },
+        { type:"action", cat:"wa", icon:"chat", text:"تذكير واتساب: إرسال موقع المعرض ورقم مسؤول المبيعات وبطاقة الحجز", stage:4, chk:"chk_followup" },
+        { speaker:"ai", text:"أرسلت لك تذكيراً بموقع المعرض على الواتساب لتسهيل وصولك. هل تحتاج أي مساعدة إضافية؟", stage:4 },
+        { speaker:"caller", text:"لا تسلم، كل شيء واضح، شكراً لاتصالكم." },
+        { speaker:"ai", text:"العفو وبانتظار تشريفك لنا غداً، مع السلامة!" }
+      ];
+    } else if(code === "OUT-2" || fid === "campaign"){
+      return [
+        { speaker:"ai", text:"مرحباً مهندس سلطان، معك وكيل لايف تايم فتنس لحلول الأندية الرياضية. نبارك لكم نجاح فرعكم الرياضي ونتواصل معكم بخصوص وصول تشكيلة 2026 من أجهزة الكارديو الذكية المزودة بشاشات تفاعلية.", stage:1 },
+        { speaker:"caller", text:"أهلاً بكم، هل التشكيلة الجديدة تشمل أجهزة السير ومحطات القوة؟ وهل عندكم برنامج استبدال للأجهزة القديمة؟" },
+        { type:"action", cat:"api", icon:"layers", text:"استعلام الحملة: استرجاع شروط برنامج استبدال الأجهزة (Trade-In) من "+sysName+"...", stage:2, chk:"chk_queried" },
+        { speaker:"ai", text:"نعم بالضبط مهندس سلطان، أطلقنا رسمياً برنامج استبدال الأجهزة القديمة بأجهزة 2026 مع احتساب قيمتها كدفعة وتوفير تسهيلات سداد وضمان 5 سنوات.", stage:3 },
+        { speaker:"caller", text:"ممتاز جداً، ودنا بزيارة للمعرض لفحص التشكيلة والاتفاق على التقييم." },
+        { type:"action", cat:"crm", icon:"checkc", text:"تسجيل اهتمام بالحملة: جدولة موعد عرض وتجربة أجهزة للمهندس سلطان في "+sysName, stage:4, chk:"chk_logged" },
+        { type:"action", cat:"wa", icon:"chat", text:"إرسال تفاصيل العرض: إرسال كتالوج التشكيلة وشروط الاستبدال التقديرية عبر الواتساب", stage:4, chk:"chk_followup" },
+        { speaker:"ai", text:"تم تسجيل موعد زيارتك للمعرض وجدولة تقييم الأجهزة مع فريق المبيعات، وأرسلت لك تفاصيل برنامج الاستبدال على الواتساب.", stage:4 },
+        { speaker:"caller", text:"شكراً جزيلاً لك على المتابعة الممتازة." },
+        { speaker:"ai", text:"في أمان الله، ويسعدنا دائماً التعاون معكم!" }
+      ];
+    } else if(code === "OUT-3" || fid === "leadfol"){
+      return [
+        { speaker:"ai", text:"أهلاً دكتور خالد، معك لايف تايم فتنس لمعدات الأندية الرياضية. نتواصل معك لمتابعة عرض السعر ومخطط الصالة الرياضية وغرف البخار والساونا المرسل لكم يوم الثلاثاء.", stage:1 },
+        { speaker:"caller", text:"أهلاً بك، راجعت العرض وكان ممتازاً، لكن كان عندي استفسار عن مدة التوريد وتوفر قطع الغيار في الرياض." },
+        { type:"action", cat:"api", icon:"book", text:"مطابقة التوريد والدعم: التحقق من التوريد الفوري ومركز الصيانة بالرياض من "+sysName+"...", stage:2, chk:"chk_queried" },
+        { speaker:"ai", text:"المعدات متوفرة بمستودعاتنا المركزية بالرياض والتوريد والتركيب يتم خلال 5 إلى 7 أيام عمل فقط، مع توفر قطع الغيار الأصلية وفريق صيانة ميداني على مدار الساعة.", stage:3 },
+        { speaker:"caller", text:"هذا مطمئن جداً، حاب نرتب اجتماع مع مسؤول المبيعات لاعتماد التعاقد النهائي." },
+        { type:"action", cat:"crm", icon:"checkc", text:"ترقية مرحلة الصفقة: تحديث حالة العرض في "+sysName+" إلى (مراجعة العقد النهائي)", stage:4, chk:"chk_logged" },
+        { speaker:"ai", text:"تم حجز موعد الاجتماع وتوجيه ملف العرض لمسؤول المبيعات طارق ليتواصل معك لتوقيع العقد.", stage:4 },
+        { type:"action", cat:"wa", icon:"chat", text:"إرسال واتساب: إرسال جدول مراحل التوريد والتركيب المعتمد وبيانات مسؤول المبيعات", stage:4, chk:"chk_followup" },
+        { speaker:"caller", text:"ممتاز، شكراً لاهتمامكم وسرعة تجاوبكم." },
+        { speaker:"ai", text:"العفو دكتور خالد، يومك سعيد ونراكم على خير!" }
+      ];
+    } else if(code === "OUT-4" || fid === "reactivate"){
+      return [
+        { speaker:"ai", text:"مرحباً أبو فهد، معك قسم الصيانة وخدمات ما بعد البيع في لايف تايم فتنس. نود تذكيركم بقرب انتهاء فترة الضمان المجاني لأجهزة ناديكم بنهاية الشهر الحالي.", stage:1 },
+        { speaker:"caller", text:"أهلاً بكم، صحيح كنا نفكر في موضوع الصيانة الدورية حتى نحافظ على كفاءة السيور ومحطات الحديد." },
+        { type:"action", cat:"api", icon:"layers", text:"استعلام سجل الصيانة: مراجعة عدد الأجهزة وسجل الزيارات الوقائية في "+sysName+"...", stage:2, chk:"chk_queried" },
+        { speaker:"ai", text:"بالضبط يا أبو فهد، ولهذا وفرنا لكم عقد الصيانة الوقائية السنوي (AMC) ويشمل 4 زيارات فحص دوري، تشحيم ومعايرة الحساسات، والتدخل الطارئ خلال 24 ساعة مع خصم على القطع الاستهلاكية.", stage:3 },
+        { speaker:"caller", text:"ممتاز، أرسل لي مسودة عقد الصيانة السنوي وشروطه لنعتمدها." },
+        { type:"action", cat:"crm", icon:"checkc", text:"تجديد العقد: فتح طلب عقد صيانة سنوي (AMC) وربطه بملف العميل في "+sysName, stage:4, chk:"chk_logged" },
+        { type:"action", cat:"wa", icon:"chat", text:"إرسال واتساب: تم إرسال مسودة عقد الصيانة الوقائية (AMC) وقائمة الفحص الفني", stage:4, chk:"chk_followup" },
+        { speaker:"ai", text:"تم إرسال مسودة العقد وبنود الفحص الوقائي إلى رقمكم على الواتساب، وسيقوم المهندس بالتواصل لتأكيد الزيارة الأولى.", stage:4 },
+        { speaker:"caller", text:"يعطيكم العافية، خطوة ممتازة ومهمة لنا." },
+        { speaker:"ai", text:"الله يعافيك، ويهمنا دائماً استمرار عمل أجهزتكم بأعلى كفاءة!" }
+      ];
+    } else {
+      // OUT-5: VIP Showroom Demo & Invitations
+      return [
+        { speaker:"ai", text:"مرحباً أستاذ منصور، معك لايف تايم فتنس لحلول وتجهيزات الأندية الرياضية ومرافق الساونا والمسابح. نتصل لتقديم دعوة خاصة لحضور ملتقى تجربة التجهيزات الرياضية الفاخرة لعام 2026 في معرضنا الرئيسي بالرياض.", stage:1 },
+        { speaker:"caller", text:"أهلاً بكم، ما هي الفئات المعروضة في هذا الملتقى؟" },
+        { type:"action", cat:"api", icon:"calendar", text:"استعلام الفعالية: سحب جدول العروض الحية للأجهزة ومرافق السبا والمسابح من "+sysName+"...", stage:2, chk:"chk_queried" },
+        { speaker:"ai", text:"العرض مخصص للمطورين وإدارات المرافق، ويشمل تجربة حية لأحدث أجهزة القوة البيوميكانيكية، أنظمة الجاكوزي والساونا المدمجة، وتجهيزات ألعاب المجمعات، مع ورشة عمل حول استغلال المساحات.", stage:3 },
+        { speaker:"caller", text:"رائع جداً، احجز لي مقعدين لي وللمهندس المسؤول عن مشاريعنا." },
+        { type:"action", cat:"crm", icon:"checkc", text:"تأكيد تسجيل كبار الشخصيات: إصدار بطاقتي دعوة VIP وتسجيل الحضور في "+sysName, stage:4, chk:"chk_logged" },
+        { type:"action", cat:"wa", icon:"chat", text:"إرسال بطاقات VIP: تم إرسال الباركود الرقمي والموقع وخدمة صف السيارات عبر الواتساب", stage:4, chk:"chk_followup" },
+        { speaker:"ai", text:"تم تأكيد حجز مقعدين VIP باسمك واسم فريقكم الهندسي، وأرسلت لك بطاقات الدخول الرقمية ورمز خدمة صف السيارات على الواتساب.", stage:4 },
+        { speaker:"caller", text:"شكراً جزيلاً، نراكم بالموعد المحدد." },
+        { speaker:"ai", text:"نتشرف بكم أستاذ منصور، ونتمنى لكم تجربة مميزة!" }
       ];
     }
   } else {
-    if(fid==="resched" || fid==="complaint" || fid==="urgent"){
-      return [
-        { speaker:"ai", text:"Welcome to Lifetime Fitness Gym Equipment Solutions. I am your AI Voice Agent. How may I assist you today?", stage:1 },
-        { speaker:"caller", text:"Hello, I have an equipment consultation and showroom visit scheduled for Tuesday, but our gym site construction is delayed. I need to reschedule the consultation by 3 days." },
-        { type:"action", cat:"api", icon:"layers", text:"Query Appointment: Retrieving showroom consultation record from "+sysName+"...", stage:2, chk:"chk_queried" },
-        { speaker:"ai", text:"I have retrieved your consultation record. Because rescheduling showroom appointments requires sales representative coordination, I am transferring you directly to our sales desk.", stage:3 },
-        { type:"action", cat:"escalate", icon:"users", text:"Context Transfer: Packaging client inquiry & requested 3-day delay to "+hName, stage:4, chk:"chk_verified" },
-        { type:"handover", title:"📞 Warm Handover to Sales Representative", desc:"Routing to Ext. 101 (Tariq — Sales Representative, 700Apps Platform) · Audio & CRM File Synced" },
-        { speaker:"human-agent", speakerName:"Sales Representative (Tariq — Ext. 101)", text:"Hello Faisal, Tariq here from Lifetime Fitness Sales. I have your showroom appointment file open on my screen. I see you need to reschedule your consultation by 3 days?", isEscalate:true },
-        { speaker:"caller", text:"Yes exactly Tariq. The site work is finishing this week, and we want to confirm machine availability in the showroom." },
-        { type:"action", cat:"crm", icon:"checkc", text:"Appointment Updated: Tariq reschedules consultation to next Thursday & updates lead status in "+sysName, stage:4, chk:"chk_logged" },
-        { speaker:"human-agent", speakerName:"Sales Representative (Tariq — Ext. 101)", text:"I have rescheduled your consultation for next Thursday at 4:00 PM, and confirmed availability of the commercial strength line in our showroom.", isEscalate:true },
-        { type:"action", cat:"wa", icon:"chat", text:"WhatsApp Dispatched: Updated appointment confirmation & showroom map sent", stage:4, chk:"chk_followup" },
-        { speaker:"caller", text:"Thank you so much Tariq, that was very efficient and seamless!" },
-        { speaker:"human-agent", speakerName:"Sales Representative (Tariq — Ext. 101)", text:"You are very welcome Faisal. We look forward to welcoming you to our showroom next Thursday!" }
-      ];
-    } else if(fid==="book" || fid==="apptstat" || fid==="remind"){
+    // ==========================================
+    // INBOUND FLOWS (English)
+    // ==========================================
+    if(code === "IN-1" || fid === "book"){
       return [
         { speaker:"ai", text:"Welcome to Lifetime Fitness! I am your AI Voice Agent. How can I assist with your gym equipment requirements today?", stage:1 },
-        { speaker:"caller", text:"Hi, I'd like to book a showroom consultation and gym layout design session at your Riyadh showroom for a residential compound project." },
+        { speaker:"caller", text:"Hi, I'd like to book a showroom consultation and layout design session at your Riyadh showroom for a residential compound project." },
         { type:"action", cat:"api", icon:"calendar", text:"Live Schedule Check: Checking available consultation slots with gym equipment design engineers in "+sysName+"...", stage:2, chk:"chk_queried" },
         { speaker:"ai", text:"Certainly, Faisal. We have an opening today at 5:00 PM with our commercial fitness equipment consultant. Shall I confirm that appointment?", stage:3 },
         { speaker:"caller", text:"Yes please, go ahead and book it." },
@@ -1600,18 +1688,130 @@ function buildSimulationScript(flow, D, lang){
         { speaker:"caller", text:"Awesome, thanks for the quick help!" },
         { speaker:"ai", text:"We look forward to welcoming you to our showroom! Have a great day." }
       ];
-    } else {
+    } else if(code === "IN-2" || fid === "faq"){
       return [
-        { speaker:"ai", text:"Thank you for calling Lifetime Fitness Gym Equipment Solutions! Are you inquiring about commercial gym equipment or home fitness packages?", stage:1 },
-        { speaker:"caller", text:"Hello! I'm inquiring about specifications and pricing for your heavy-duty commercial treadmills and multi-station strength machines." },
-        { type:"action", cat:"api", icon:"layers", text:"Query Catalog: Retrieving commercial equipment lines, warranties & specifications from "+sysName+"...", stage:2, chk:"chk_queried" },
-        { speaker:"ai", text:"Our commercial grade treadmills and multi-station strength units are certified for continuous facility use, backed by a 5-year commercial frame warranty and local support in Riyadh.", stage:3 },
-        { speaker:"caller", text:"That sounds great! Can you send me the full technical catalog and specification sheets via WhatsApp?" },
-        { type:"action", cat:"crm", icon:"users", text:"Lead Qualified: Commercial gym equipment prospect profile created in "+sysName, stage:4, chk:"chk_logged" },
-        { type:"action", cat:"wa", icon:"chat", text:"WhatsApp Dispatched: Complete commercial equipment catalog, spec sheets & showroom location delivered", stage:4, chk:"chk_followup" },
-        { speaker:"ai", text:"I have just sent our complete commercial fitness equipment catalog and technical specifications to your WhatsApp.", stage:4 },
-        { speaker:"caller", text:"Perfect, I will review it right away. Thank you!" },
-        { speaker:"ai", text:"You are very welcome! We look forward to assisting you with your fitness equipment project." }
+        { speaker:"ai", text:"Welcome to Lifetime Fitness Technical Desk. Which equipment category can I provide technical specifications or warranty details on?", stage:1 },
+        { speaker:"caller", text:"Hello, I need the technical specifications for your heavy-duty commercial AC motor treadmills, and what is your warranty on Finnish sauna heaters and jacuzzis?" },
+        { type:"action", cat:"api", icon:"book", text:"Knowledge Base Query: Searching commercial AC motor continuous ratings, sauna heater safety specs & 5-year frame warranty...", stage:2, chk:"chk_queried" },
+        { speaker:"ai", text:"Our commercial treadmills feature 5.0 HP continuous-duty AC inverter motors rated for 18 hours of daily use, backed by a 5-year frame and motor warranty. Our sauna heaters and jacuzzi pumps carry full commercial certifications with local spare parts in Riyadh.", stage:3 },
+        { speaker:"caller", text:"That is exactly what our engineering team needs. Can you send the full spec sheet and warranty certificate to my WhatsApp?" },
+        { type:"action", cat:"crm", icon:"users", text:"Inquiry Logged: Customer equipment specification preference and warranty file recorded in "+sysName, stage:4, chk:"chk_logged" },
+        { type:"action", cat:"wa", icon:"chat", text:"WhatsApp Delivered: Commercial treadmill technical spec sheet, sauna manual & warranty terms dispatched", stage:4, chk:"chk_followup" },
+        { speaker:"ai", text:"I have dispatched the official specification sheet, electrical load requirements, and warranty terms directly to your WhatsApp.", stage:4 },
+        { speaker:"caller", text:"Got it right now. Thank you for the rapid details!" },
+        { speaker:"ai", text:"You are very welcome! Feel free to reach out if you need on-site electrical survey coordination." }
+      ];
+    } else if(code === "IN-3" || fid === "resched"){
+      return [
+        { speaker:"ai", text:"Welcome to Lifetime Fitness Gym Equipment Solutions. I am your AI Voice Agent. How may I assist you today?", stage:1 },
+        { speaker:"caller", text:"Hello, I have an equipment consultation and showroom visit scheduled for Tuesday, but our gym site construction is delayed. I need to reschedule the consultation by 3 days." },
+        { type:"action", cat:"api", icon:"layers", text:"Query Appointment: Retrieving showroom consultation record from "+sysName+"...", stage:2, chk:"chk_queried" },
+        { speaker:"ai", text:"I have retrieved your consultation record. Because rescheduling showroom appointments requires sales representative coordination, I am transferring you directly to our sales desk.", stage:3 },
+        { type:"action", cat:"escalate", icon:"users", text:"Context Transfer: Packaging client inquiry & requested 3-day delay to "+hNameEn, stage:4, chk:"chk_verified" },
+        { type:"handover", title:"📞 Warm Handover to Sales Representative", desc:"Routing to Ext. 101 (Tariq — Sales Representative, 700Apps Platform) · Audio & CRM File Synced" },
+        { speaker:"human-agent", speakerName:hNameEn, text:"Hello Faisal, Tariq here from Lifetime Fitness Sales. I have your showroom appointment file open on my screen. I see you need to reschedule your consultation by 3 days?", isEscalate:true },
+        { speaker:"caller", text:"Yes exactly Tariq. The site work is finishing this week, and we want to confirm machine availability in the showroom." },
+        { type:"action", cat:"crm", icon:"checkc", text:"Appointment Updated: Tariq reschedules consultation to next Thursday & updates lead status in "+sysName, stage:4, chk:"chk_logged" },
+        { speaker:"human-agent", speakerName:hNameEn, text:"I have rescheduled your consultation for next Thursday at 4:00 PM, and confirmed availability of the commercial strength line in our showroom.", isEscalate:true },
+        { type:"action", cat:"wa", icon:"chat", text:"WhatsApp Dispatched: Updated appointment confirmation & showroom map sent", stage:4, chk:"chk_followup" },
+        { speaker:"caller", text:"Thank you so much Tariq, that was very efficient and seamless!" },
+        { speaker:"human-agent", speakerName:hNameEn, text:"You are very welcome Faisal. We look forward to welcoming you to our showroom next Thursday!" }
+      ];
+    } else if(code === "IN-4" || fid === "lead"){
+      return [
+        { speaker:"ai", text:"Thank you for calling Lifetime Fitness Commercial Projects Division. Are you planning a commercial gym facility, compound clubhouse, or hotel wellness center?", stage:1 },
+        { speaker:"caller", text:"Hello, we are developing a 450 sqm residential compound facility in Riyadh. We require cardio, selectorized strength, a sauna suite, and playground equipment for the outdoor area." },
+        { type:"action", cat:"api", icon:"users", text:"Qualify Project: Extracting square footage (450 sqm), multi-category scope & target launch date...", stage:2, chk:"chk_queried" },
+        { speaker:"ai", text:"Lifetime Fitness specializes in turnkey commercial projects across cardio, strength, spa wellness, and certified playground equipment. We provide complete 2D/3D layout planning and equipment selection.", stage:3 },
+        { speaker:"caller", text:"Can you have a sales engineer visit our compound site this week to inspect the space and take dimensions?" },
+        { type:"action", cat:"crm", icon:"checkc", text:"B2B Deal Staged: High-priority commercial opportunity created in "+sysName+" & routed to Sales Rep Tariq", stage:4, chk:"chk_logged" },
+        { speaker:"ai", text:"I have registered your 450 sqm compound project in our system. Our sales representative Tariq will contact you within two hours to confirm the on-site engineering survey.", stage:4 },
+        { type:"action", cat:"wa", icon:"chat", text:"WhatsApp Portfolio Sent: Compound reference projects, playground catalog & sauna designs delivered", stage:4, chk:"chk_followup" },
+        { speaker:"ai", text:"I have also dispatched our compound reference portfolio and technical catalog to your WhatsApp.", stage:4 },
+        { speaker:"caller", text:"Excellent service. I will review the portfolio and wait for Tariq's call." },
+        { speaker:"ai", text:"Thank you for choosing Lifetime Fitness. We look forward to building your facility!" }
+      ];
+    } else if(code === "IN-5" || fid === "quote"){
+      return [
+        { speaker:"ai", text:"Welcome to Lifetime Fitness Digital Concierge. How may I assist with your equipment catalogs and pricing lists?", stage:1 },
+        { speaker:"caller", text:"Hello, could you immediately send me your 2026 commercial gym catalog, swimming pool equipment list, and spa specifications via WhatsApp?" },
+        { type:"action", cat:"api", icon:"book", text:"Retrieve Catalogs: Compiling verified 2026 digital catalogs and commercial price indexes...", stage:2, chk:"chk_queried" },
+        { speaker:"ai", text:"Certainly! Would you like the comprehensive catalog covering commercial fitness, spa, sauna, and playground equipment?", stage:3 },
+        { speaker:"caller", text:"Yes, please send the comprehensive package to this mobile number." },
+        { type:"action", cat:"crm", icon:"users", text:"Automated Contact Capture: Prospect created in "+sysName+" without manual Excel data entry", stage:4, chk:"chk_logged" },
+        { type:"action", cat:"wa", icon:"chat", text:"Instant WhatsApp Delivery: Complete 2026 PDF catalog bundle and showroom location dispatched", stage:4, chk:"chk_followup" },
+        { speaker:"ai", text:"The complete 2026 digital catalog bundle and commercial price index have been delivered to your WhatsApp right now.", stage:4 },
+        { speaker:"caller", text:"Received! That was remarkably fast, thank you." },
+        { speaker:"ai", text:"You are welcome! Our sales team is ready whenever you wish to test any machine at our showroom." }
+      ];
+    }
+    // ==========================================
+    // OUTBOUND FLOWS (English - Autonomous Voice Outreach)
+    // ==========================================
+    else if(code === "OUT-1" || fid === "remind"){
+      return [
+        { speaker:"ai", text:"Hello Faisal, this is Lifetime Fitness calling to confirm your showroom equipment consultation scheduled for tomorrow at 5:00 PM.", stage:1 },
+        { speaker:"caller", text:"Hello! Yes, confirming that I will attend as scheduled." },
+        { type:"action", cat:"api", icon:"calendar", text:"Query Booking Status: Checking tomorrow's 5:00 PM showroom appointment queue in "+sysName+"...", stage:2, chk:"chk_queried" },
+        { speaker:"ai", text:"Wonderful! Our sales representative Tariq has prepared your customized layout options and the equipment demonstration units.", stage:3 },
+        { type:"action", cat:"crm", icon:"checkc", text:"CRM Updated: Appointment marked as 'Confirmed' in "+sysName+" pipeline", stage:4, chk:"chk_logged" },
+        { type:"action", cat:"wa", icon:"chat", text:"WhatsApp Dispatched: Confirmation badge, showroom map link & representative contact sent", stage:4, chk:"chk_followup" },
+        { speaker:"ai", text:"I have sent a reminder pin of our showroom location to your WhatsApp for easy navigation. Do you need any assistance with directions?", stage:4 },
+        { speaker:"caller", text:"No, the WhatsApp location is perfect. See you tomorrow!" },
+        { speaker:"ai", text:"We look forward to welcoming you! Have a great afternoon." }
+      ];
+    } else if(code === "OUT-2" || fid === "campaign"){
+      return [
+        { speaker:"ai", text:"Hello Eng. Sultan, this is Lifetime Fitness calling our commercial fitness partners. We are announcing the arrival of our 2026 commercial cardio line featuring smart interactive touchscreen consoles, alongside our equipment trade-in program.", stage:1 },
+        { speaker:"caller", text:"Hello. Does the new arrival include both treadmills and stair climbers? How does the trade-in program work?" },
+        { type:"action", cat:"api", icon:"layers", text:"Query Campaign Rules: Retrieving 2026 commercial cardio specs and equipment trade-in credit schedule...", stage:2, chk:"chk_queried" },
+        { speaker:"ai", text:"Yes, Eng. Sultan. It includes both commercial treadmills and curved stair climbers. Our trade-in program evaluates your existing machines toward the new units with full 5-year commercial warranties and flexible financing.", stage:3 },
+        { speaker:"caller", text:"That sounds very interesting for our gym expansion. I would like to visit the showroom and review the trade-in valuation." },
+        { type:"action", cat:"crm", icon:"checkc", text:"Campaign Lead Staged: Trade-in consultation scheduled in "+sysName+" and assigned to Tariq", stage:4, chk:"chk_logged" },
+        { type:"action", cat:"wa", icon:"chat", text:"WhatsApp Sent: 2026 cardio catalog, video walkthrough & trade-in criteria sheet delivered", stage:4, chk:"chk_followup" },
+        { speaker:"ai", text:"I have booked your showroom demonstration and sent the video walkthrough and trade-in criteria sheet to your WhatsApp.", stage:4 },
+        { speaker:"caller", text:"Thank you for the proactive outreach. I will review the video." },
+        { speaker:"ai", text:"Our pleasure, Eng. Sultan! Have a productive day." }
+      ];
+    } else if(code === "OUT-3" || fid === "leadfol"){
+      return [
+        { speaker:"ai", text:"Hello Dr. Khalid, this is Lifetime Fitness following up on the commercial gym and sauna proposal sent to you on Tuesday for your clinic wellness facility.", stage:1 },
+        { speaker:"caller", text:"Hello. Yes, I reviewed the proposal. We had a question regarding installation lead times and local parts availability in Riyadh." },
+        { type:"action", cat:"api", icon:"book", text:"Verify Logistics & SLAs: Checking central warehouse inventory in Riyadh and installation timelines...", stage:2, chk:"chk_queried" },
+        { speaker:"ai", text:"All proposed commercial units and sauna heaters are in stock at our Riyadh central warehouse. Delivery and certified installation take 5 to 7 business days, supported by our local spare parts inventory.", stage:3 },
+        { speaker:"caller", text:"That solves our timeline concern. Let us arrange a final agreement review with your sales manager." },
+        { type:"action", cat:"crm", icon:"checkc", text:"Pipeline Deal Progressed: Deal stage advanced to 'Contract Finalization' in "+sysName, stage:4, chk:"chk_logged" },
+        { speaker:"ai", text:"I have updated your deal stage to Contract Finalization and scheduled a call with our sales representative Tariq to finalize terms.", stage:4 },
+        { type:"action", cat:"wa", icon:"chat", text:"WhatsApp Dispatched: Milestone delivery schedule and installation warranty protocol delivered", stage:4, chk:"chk_followup" },
+        { speaker:"caller", text:"Appreciate the follow-up, looking forward to speaking with Tariq." },
+        { speaker:"ai", text:"Thank you Dr. Khalid, we look forward to completing your project!" }
+      ];
+    } else if(code === "OUT-4" || fid === "reactivate"){
+      return [
+        { speaker:"ai", text:"Hello Abu Fahad, this is Lifetime Fitness Preventative Maintenance Services. We are contacting you as your facility's original equipment warranty reaches its 1-year mark this month.", stage:1 },
+        { speaker:"caller", text:"Hello! Yes, we wanted to ensure our commercial treadmills and multi-stations stay in top shape." },
+        { type:"action", cat:"api", icon:"layers", text:"Query Maintenance File: Reviewing facility machine count and inspection history in "+sysName+"...", stage:2, chk:"chk_queried" },
+        { speaker:"ai", text:"That is why we are offering our Annual Preventative Maintenance Contract (AMC). It includes quarterly certified inspections, motor calibrations, belt lubrications, and 24-hour emergency technician dispatch.", stage:3 },
+        { speaker:"caller", text:"Could you send me the AMC contract draft and pricing schedule so we can sign it?" },
+        { type:"action", cat:"crm", icon:"checkc", text:"AMC Renewal Staged: Maintenance renewal record created in "+sysName+" pipeline", stage:4, chk:"chk_logged" },
+        { type:"action", cat:"wa", icon:"chat", text:"WhatsApp Dispatched: Annual Maintenance Contract draft & 18-point inspection checklist delivered", stage:4, chk:"chk_followup" },
+        { speaker:"ai", text:"I have delivered the AMC agreement draft and our 18-point technical inspection checklist directly to your WhatsApp.", stage:4 },
+        { speaker:"caller", text:"Received. We will get this approved. Thank you for staying on top of our maintenance." },
+        { speaker:"ai", text:"Our priority is zero downtime for your members! Have a wonderful day." }
+      ];
+    } else {
+      // OUT-5: VIP Showroom Demo & Invitations
+      return [
+        { speaker:"ai", text:"Hello Mr. Mansour, this is Lifetime Fitness. We are extending a personal VIP invitation to our Private Commercial Showcase on November 15th at our Riyadh flagship showroom.", stage:1 },
+        { speaker:"caller", text:"Hello. What exhibits and equipment will be showcased during this private event?" },
+        { type:"action", cat:"api", icon:"calendar", text:"Query VIP Event Schedule: Retrieving showcase agenda for cardio, strength suites, spas & pools from "+sysName+"...", stage:2, chk:"chk_queried" },
+        { speaker:"ai", text:"The showcase features live demonstrations of our new commercial biomechanical strength line, modular sauna suites, swimming pool filtration equipment, and playground equipment, with 3D facility planning workshops.", stage:3 },
+        { speaker:"caller", text:"That sounds valuable for our developments. Please reserve two executive passes for me and our projects director." },
+        { type:"action", cat:"crm", icon:"checkc", text:"VIP Passes Reserved: 2 Executive registrations logged in "+sysName+" with valet access", stage:4, chk:"chk_logged" },
+        { type:"action", cat:"wa", icon:"chat", text:"WhatsApp Delivered: Digital VIP entrance pass, agenda & valet access code dispatched", stage:4, chk:"chk_followup" },
+        { speaker:"ai", text:"I have reserved two VIP passes under your name and sent the digital QR entry badges and valet code to your WhatsApp.", stage:4 },
+        { speaker:"caller", text:"Excellent, we will see you on November 15th." },
+        { speaker:"ai", text:"It will be an honor to host you, Mr. Mansour. Have a pleasant day!" }
       ];
     }
   }
